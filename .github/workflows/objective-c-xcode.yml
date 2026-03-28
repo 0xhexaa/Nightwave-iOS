@@ -1,0 +1,34 @@
+name: Build Nightwave
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create build folder
+        run: mkdir -p build
+
+      - name: Build nightwave.dylib
+        run: |
+          set -e
+          xcrun -sdk iphoneos clang++ nightwave.m -dynamiclib -arch arm64 \
+            -o build/nightwave.dylib \
+            -framework Foundation -framework UIKit
+
+      - name: List build output
+        run: ls -lh build
+
+      - name: Upload dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightwave
+          path: build/nightwave.dylib
